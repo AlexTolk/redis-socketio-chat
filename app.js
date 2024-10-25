@@ -1,15 +1,17 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const http = require('http');
+const socketIo = require('socket.io');
 
-var indexRouter = require('./routes/chat');
-var usersRouter = require('./routes/users');
+const { router: chatRouter, setIo } = require('./routes/chat'); // Destructure to get the router and setIo function
 
-var app = express();
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server); // Initialize Socket.IO with the HTTP server
 
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
@@ -19,23 +21,25 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// Pass the io instance to the chat router
+setIo(io); // Call the setIo function to pass the io instance
+app.use('/', chatRouter); // Use the chatRouter
 
-// catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+    next(createError(404));
 });
 
-// error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.status(err.status || 500);
+    res.send('error');
+});
 
-  // render the error page
-  res.status(err.status || 500);
-  res.send('error');
+// Start the server
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 module.exports = app;
