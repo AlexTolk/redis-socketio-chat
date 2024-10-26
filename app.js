@@ -5,12 +5,40 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const http = require('http');
 const socketIo = require('socket.io');
-
-const { router: chatRouter, setIo } = require('./routes/chat'); // Destructure to get the router and setIo function
+const { createClient } = require('redis');
+const { createAdapter } = require('@socket.io/redis-adapter');
+const { router: chatRouter, setIo } = require('./routes/chat');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server); // Initialize Socket.IO with the HTTP server
+
+
+const redisClient = createClient({
+    url: 'redis://redis:6379',
+});
+
+const pubClient = redisClient.duplicate();
+const subClient = pubClient.duplicate();
+
+async function connectClients() {
+    try {
+        await redisClient.connect();
+        await pubClient.connect();
+        await subClient.connect();
+    } catch (error) {
+        console.error("Error connecting to Redis clients:", error);
+    }
+}
+
+connectClients().then(() => {
+    const io = socketIo(server);
+    const redisAdapter = createAdapter(pubClient, subClient);
+    io.adapter(redisAdapter);
+    
+    
+    setIo(io);
+});
+
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -21,9 +49,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Pass the io instance to the chat router
-setIo(io); // Call the setIo function to pass the io instance
-app.use('/', chatRouter); // Use the chatRouter
+app.use('/', chatRouter);
 
 app.use(function(req, res, next) {
     next(createError(404));
@@ -36,7 +62,6 @@ app.use(function(err, req, res, next) {
     res.send('error');
 });
 
-// Start the server
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

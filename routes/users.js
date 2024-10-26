@@ -2,8 +2,8 @@ var express = require('express');
 var router = express.Router();
 
 let users = [{
-  id: Math.floor(Math.random * 1000),
-  name: `Alex ${this.id}`,
+  id: Math.floor(Math.random() * 1000),
+  name: `Alex - ${Math.floor(Math.random() * 1000)}`,
 }];
 
 /* POST users listing. */

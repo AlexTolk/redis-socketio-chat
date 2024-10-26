@@ -4,28 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Application</title>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://localhost:8080/socket.io/socket.io.js"></script>
     <script>
-        const socket = io(); 
-        function sendMessage() {
-            const messageInput = document.getElementById('messageInput');
-            const message = messageInput.value;
-            socket.emit('message', { message });
-            messageInput.value = ''; // Clear input
-        }
+        window.onload = function() {
 
-        socket.on('message', function(data) {
-            const messagesList = document.getElementById('messages');
-            const newMessage = document.createElement('li');
-            newMessage.innerText = data.message;
-            messagesList.appendChild(newMessage);
-        });
+            const socket = io('http://localhost:3001', { transports: ['websocket', 'polling'] });
+
+            function sendMessage() {
+                const messageInput = document.getElementById('messageInput');
+                const message = messageInput.value;
+                if (message.trim() !== '') {  
+                    socket.emit('message', { message });
+                    messageInput.value = ''; 
+                }
+            }
+
+            socket.on('message', (data) => {
+                console.log(data);
+                const messagesList = document.getElementById('messages');
+                const newMessage = document.createElement('li');
+                newMessage.innerText = data.message;
+                messagesList.appendChild(newMessage);
+            });
+
+            document.getElementById('sendButton').onclick = sendMessage;
+        };
     </script>
 </head>
 <body>
     <h1>Chat Application</h1>
     <ul id="messages"></ul>
-    <input id="messageInput" autocomplete="off" />
-    <button onclick="sendMessage()">Send</button>
+    <input id="messageInput" autocomplete="off" placeholder="Type your message..." />
+    <button id="sendButton">Send</button>
 </body>
 </html>
