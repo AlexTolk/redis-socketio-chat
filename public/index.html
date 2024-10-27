@@ -8,22 +8,34 @@
     <script>
         window.onload = function() {
 
-            const socket = io('http://localhost:3001', { transports: ['websocket', 'polling'] });
+            const socket = io('/', { transports: ['websocket', 'polling'] });
+
+            socket.on('connect', () => {
+                console.log('Connected to WebSocket server');
+            });
+
+            socket.on('connect_error', (error) => {
+                console.error('WebSocket connection error:', error);
+            });
 
             function sendMessage() {
                 const messageInput = document.getElementById('messageInput');
                 const message = messageInput.value;
+                console.log('Message input:', message);
                 if (message.trim() !== '') {  
                     socket.emit('message', { message });
                     messageInput.value = ''; 
                 }
             }
-
-            socket.on('message', (data) => {
-                console.log(data);
+            socket.on('connect', () => {
+                console.log('Connected to Socket.IO server');
+            });
+            
+            socket.on('message', (msg) => {
+                console.log('New message recieced:', msg);
                 const messagesList = document.getElementById('messages');
                 const newMessage = document.createElement('li');
-                newMessage.innerText = data.message;
+                newMessage.innerText = msg.message;
                 messagesList.appendChild(newMessage);
             });
 

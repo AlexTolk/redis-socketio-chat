@@ -1,6 +1,7 @@
 const express = require('express');
 const { pub, sub, connectClients } = require('../data/redis');
 const messages = require('../data/inmem');
+const path = require('path');
 
 const router = express.Router();
 let io;
@@ -11,8 +12,7 @@ async function setIo(instance) {
         return;
     }
     io = instance;
-
-
+    console.log('Socket io instance is available')
     await connectClients();
 
 
@@ -29,7 +29,7 @@ async function setIo(instance) {
 }
 
 router.get('/', (req, res) => {
-    res.send('Welcome to the chat application!');
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 router.get('/get/:id', async (req, res) => {
