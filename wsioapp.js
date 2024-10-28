@@ -4,16 +4,21 @@ const { Server } = require("socket.io");
 
 module.exports = function(httpServer) {
     const wsServer = new Server(httpServer, {
-        cors: '*',
+        cors: {
+            origin: 'http://localhost',
+            methods: ['GET', 'POST'],
+            credentials: true,
+            transports: ['websocket', 'polling']
+        },
+        allowEIO3: true,
     });
 
     sub('message', (payload) => {
-        if (payload.room) {
-            wsServer.to(payload.room).emit('message', payload);
-        } else {
-            wsServer.emit('message', payload);
-        }
-    })
+        messages[payload.to] = messages[payload.to] || [];
+        messages[payload.to].push(payload);
+        wsServer.to(payload.to).emit('message', payload);
+    });
+    
     wsServer.on('connection', (socket) => {
         const userID = socket.id;
         console.log('a user connected', userID);
@@ -28,22 +33,12 @@ module.exports = function(httpServer) {
             socket.leave(msg.id);
         });
 
-        socket.on('get', async (msg, reply) => {
-            const { room, message } = msg;
-            const payload = {
-                id: new Date().getTime().toString(),
-                userID,
-                room,
-                message,
-            };
-            
-            messages[room] = messages[room] || [];
-            messages[room].push(payload);
-
-            socket.to(room).emit('message', payload);
-            
-            await pub('message', payload);
-
+        socket.on('send', (msg, reply) => {
+            messages[msg.to] = messages[msg.to] || [];
+            messages[msg.to].push(msg);
+            msg.userID = userID
+            socket.to(msg.to).emit('message', msg);
+            pub('message', msg);
             reply('ok');
         });
     });

@@ -1,57 +1,10 @@
 const express = require('express');
-const { pub, sub, connectClients } = require('../data/redis');
 const messages = require('../data/inmem');
-const path = require('path');
 
 const router = express.Router();
-let io;
 
-async function setIo(instance) {
-    if (!instance) {
-        console.error('Socket.io instance not available!');
-        return;
-    }
-    io = instance;
-    console.log('Socket io instance is available')
-    await connectClients();
-
-
-    sub.on('message', (channel, message) => {
-        const payload = JSON.parse(message);
-        if (io) {
-            io.emit('message', payload);
-        } else {
-            console.error('Socket.io instance not set for emitting messages');
-        }
-    });
-
-    await sub.subscribe('message');
-}
-
-router.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-
-router.get('/get/:id', async (req, res) => {
+router.get('/get/:id', async (req, res, next) => {
     res.send(messages[req.params.id] || []);
-});
+})
 
-router.post('/send', async (req, res) => {
-    const message = req.body.message;
-    const id = req.body.id || new Date().getTime().toString();
-
-    messages[id] = message;
-    if (io) {
-        io.emit('message', { id, message });
-    } else {
-        console.error('Socket.io instance not set for emitting messages');
-    }
-    await pub.publish('message', JSON.stringify({ id, message }));
-
-    res.status(201).send({ success: true, id });
-});
-
-module.exports = {
-    router,
-    setIo
-};
+module.exports = router;
