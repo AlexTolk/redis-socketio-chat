@@ -14,6 +14,7 @@ function handleSelection() {
     }
     sessionLog.push(newRoom);
     socket.currentRoom = newRoom;
+    ul.innerHTML = ''
     join(newRoom);
 }
 
