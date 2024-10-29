@@ -24,13 +24,13 @@ module.exports = function(httpServer) {
         console.log('a user connected', userID);
 
         socket.on('join', (msg) => {
-            console.log(`User joined room: ${msg.id}`);
-            socket.join(msg.id);
+            console.log(`user joined room: ${msg.room}`);
+            socket.join(msg.room);
         });
 
         socket.on('leave', (msg) => {
-            console.log(`User left room: ${msg.id}`);
-            socket.leave(msg.id);
+            console.log(`User left room: ${msg.room}`);
+            socket.leave(msg.room);
         });
 
         socket.on('send', (msg, reply) => {

@@ -4,49 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Application</title>
-    <script src="http://localhost:8080/socket.io/socket.io.js"></script>
-    <script>
-        window.onload = function() {
-
-            const socket = io('ws://localhost:11004');
-
-            socket.on('connect', () => {
-                console.log('Connected to WebSocket server');
-            });
-
-            socket.on('connect_error', (error) => {
-                console.error('WebSocket connection error:', error);
-            });
-
-            function sendMessage() {
-                const messageInput = document.getElementById('messageInput');
-                const message = messageInput.value;
-                console.log('Message input:', message);
-                if (message.trim() !== '') {  
-                    socket.emit('message', { message });
-                    messageInput.value = ''; 
-                }
-            }
-            socket.on('connect', () => {
-                console.log('Connected to Socket.IO server');
-            });
-            
-            socket.on('message', (msg) => {
-                console.log('New message recieced:', msg);
-                const messagesList = document.getElementById('messages');
-                const newMessage = document.createElement('li');
-                newMessage.innerText = msg.message;
-                messagesList.appendChild(newMessage);
-            });
-
-            document.getElementById('sendButton').onclick = sendMessage;
-        };
-    </script>
+    <script src="https://unpkg.com/axios@1.6.7/dist/axios.min.js"></script>
+    <script src="http://localhost:11001/socket.io/socket.io.js"></script>
+    <link href="stylesheets/style.css" rel="stylesheet" />
 </head>
 <body>
     <h1>Chat Application</h1>
-    <ul id="messages"></ul>
-    <input id="messageInput" autocomplete="off" placeholder="Type your message..." />
-    <button id="sendButton">Send</button>
+    <h3>Room:</h3>
+    <select id="room" onchange="handleSelection()">
+        <option value="1">room 1</option>
+        <option value="2">room 2</option>
+        <option value="3">room 3</option>
+    </select>
+    <ul id="messages">
+        
+    </ul>
+    <form id="form">
+        <input id="messageInput" autocomplete="off" placeholder="Type your message..." />
+        <button id="sendButton">Send</button>
+    </form>
+    <script src="./javascripts/chatApp.js" type="text/javascript"></script>
 </body>
 </html>

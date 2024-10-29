@@ -1,8 +1,84 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+}
+#form {
+  background: rgb(155, 81, 81);
+  padding: 0.25rem;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  height: 3rem;
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+}
+#messageInput {
+  border: none;
+  padding: 0 1rem;
+  flex-grow: 1;
+  border-radius: 2rem;
+  margin: 0.25rem;
 }
 
-a {
-  color: #00B7FF;
+#messageInput:focus {
+  outline: none;
 }
+#sendButton {
+  background: #333;
+  border: none;
+  padding: 0 1rem;
+  margin: 0.25rem;
+  border-radius: 3px;
+  outline: none;
+  color: #fff;
+}
+#sendButton:focus {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+#messages {
+  list-style-type: none;
+  margin: 1.5rem 0;
+  padding: 25px;
+}
+#messages > li {
+  padding: 0.5rem 1rem;
+}
+#messages > li.left {
+  display: flex;
+  justify-content: start;
+}
+#messages > li.right {
+  display: flex;
+  justify-content: end;
+}
+#messages > li span {
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.8), 0 0 6px rgba(0, 0, 0, 0.05);
+  color: #fff;
+  font-size: larger;
+  font-family: Arial, Helvetica, sans-serif;
+}
+#messages > li.left span {
+  background-color: green;
+}
+#messages > li.right span {
+  background-color: orange;
+}
+
+
+@media (max-width: 600px) {
+  h1 {
+      font-size: 40px;
+  }
+  #messageInput {
+      padding: 0.5rem;
+  }
+  #sendButton {
+      padding: 0.5rem;
+  }
+}
+

@@ -1,17 +1,21 @@
-const { createClient } = require('redis');
+const redis = require('redis');
 
 
 const localID = '#' + (Math.random() * 0xfffff * 1000000).toString(16).slice(0, 6) +
     (Math.random() * 0xfffff * 1000000).toString(16).slice(0, 6) +
     (Math.random() * 0xfffff * 1000000).toString(16).slice(0, 6);
 
-const client = createClient({ url: 'redis://localhost:6379' });
+const client = redis.createClient({ url: process.env.REDIS_URL });
 const pubClient = client.duplicate();
 const subClient = client.duplicate();
 
 client.connect();
 pubClient.connect();
 subClient.connect();
+
+client.on('error', (err) => console.error('Redis Client Error', err));
+pubClient.on('error', (err) => console.error('Redis Pub Client Error', err));
+subClient.on('error', (err) => console.error('Redis Sub Client Error', err));
 
 async function get(key, defaultValue) {
     const value = await client.get(key);
